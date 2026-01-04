@@ -8,11 +8,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 db_config = {
-    'user': os.environ['USER'],
-    'password': os.environ['PASSWORD'],
-    'host': os.environ['HOST'],
-    'database': os.environ['DATABASE'],
-    'port': os.environ['PORT']
+    'user': os.environ['MYSQL_ADDON_USER'],
+    'password': os.environ['MYSQL_ADDON_PASSWORD'],
+    'host': os.environ['MYSQL_ADDON_HOST'],
+    'database': os.environ['MYSQL_ADDON_DATABASE'],
+    'port': os.environ['MYSQL_ADDON_PORT']
 }
 
 app = Flask(__name__)
