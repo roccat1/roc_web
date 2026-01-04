@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
 app = Flask(__name__)
+application = app 
 
 # SECURITY CRITICAL: This key signs the cookie. 
 # In production, make this a long random string and hide it in environment variables.
