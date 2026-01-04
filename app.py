@@ -1,6 +1,16 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
+import mysql.connector
+
+db_config = {
+    'user': 'uhxz1wbzdylnyvrq',
+    'password': 'ylekcjaHoig11EDQ2zns',
+    'host': 'bu174ajwhogc1hmjsasc-mysql.services.clever-cloud.com',
+    'database': 'bu174ajwhogc1hmjsasc',
+    'port': 3306
+}
+
 app = Flask(__name__)
 application = app 
 
@@ -40,7 +50,30 @@ def home():
     user_ip = request.remote_addr
     app.logger.info(f'User IP: {user_ip}')
     
-    return render_template('home.html')
+    all_logs = []
+
+    try:
+        # 1. Connect to database
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+
+        # 2. SELECT data (Ordered by latest first)
+        # We assume your table has columns like 'id' and 'log_time'
+        sql = "SELECT * FROM poop ORDER BY log_time DESC"
+        cursor.execute(sql)
+
+        # 3. Fetch all results
+        all_logs = cursor.fetchall()
+
+        # 4. Clean up
+        conn.close()
+
+    except Exception as e:
+        app.logger.error(f"Database error on home: {e}")
+        # Optional: Flash an error if you want the user to know the DB failed
+        flash(f"AVISAM PORFA Could not load data: {e}", "error")
+    
+    return render_template('home.html', logs=all_logs)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -55,16 +88,38 @@ def login():
             login_user(user, remember=True) 
             
             flash('Logged in successfully!', 'success')
-            return redirect(url_for('dashboard'))
+            return redirect(url_for('poop'))
         else:
-            flash('Invalid username or password', 'error')
+            flash('Invalid password', 'error')
+    
+    if current_user.is_authenticated:
+        return redirect(url_for('poop'))
 
     return render_template('login.html')
 
-@app.route('/dashboard')
+@app.route('/poop', methods=['GET', 'POST'])
 @login_required  # This protects the route. No cookie = No access.
-def dashboard():
-    return render_template('dashboard.html', name=current_user.id)
+def poop():
+    if request.method == 'POST':
+        user_date = request.form['user_time']
+
+        try:
+            # 1. Connect using the config dictionary
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor()
+            
+            # 2. INSERT (Note: MySQL uses %s, not ?)
+            sql = "INSERT INTO poop (log_time) VALUES (%s)"
+            cursor.execute(sql, (user_date,))
+            
+            conn.commit()
+            conn.close()
+            flash(f'Logged to MySQL successfully: {user_date}', 'success')
+            
+        except Exception as e:
+            flash(f"Database error: {e}", 'error')
+            
+    return render_template('poop.html')
 
 @app.route('/logout')
 @login_required

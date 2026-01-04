@@ -1,11 +1,39 @@
-{% extends "layout.html" %}
+<!DOCTYPE html>
+<html lang="cat">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="static/css/login.css">
+</head>
+<body>
 
-{% block content %}
-    <h2>Login Page</h2>
-    <form method="POST">
-        <label>Password (Try: password123):</label><br>
-        <input type="password" name="password" required><br><br>
-        
-        <button type="submit">Login</button>
-    </form>
-{% endblock %}
+    <main class="login-wrapper">
+        <form class="login-form" action="" method="POST">
+            <div class="header">
+                <h2>Benvingut</h2>
+                <p>Accés a administració.</p>
+            </div>
+
+            <label for="password" class="sr-only">Contrassenya</label>
+            
+            <input 
+                type="password" 
+                id="password" 
+                name="password" 
+                placeholder="Contrassenya" 
+                required 
+                autofocus
+            >
+
+            <button type="submit">Iniciar Sessió</button>
+
+            <div class="form-footer">
+                <a href="/" class="btn-return">← Return Home</a>
+            </div>
+
+        </form>
+    </main>
+
+</body>
+</html>

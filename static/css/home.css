@@ -1,0 +1,145 @@
+/* 1. Variables & Reset */
+:root {
+    --primary-blue: #3b82f6;
+    --dark-blue: #1d4ed8;
+    --bg-blue: #f0f4ff; 
+    --white: #ffffff;
+    --text-main: #0f172a;
+    --text-muted: #94a3b8; 
+    --success-green: #10b981;
+    --danger-red: #ef4444;
+    --radius: 16px;
+    --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-blue);
+    color: var(--text-main);
+    -webkit-font-smoothing: antialiased;
+    
+    /* STICKY FOOTER LOGIC */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Forces body to be at least full screen height */
+}
+
+/* 2. Layout Container */
+.dashboard-container {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    
+    /* Pushes footer down by taking available space */
+    flex: 1; 
+}
+
+.page-header { margin-bottom: 1.5rem; }
+.page-header h1 { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.025em; color: var(--primary-blue); }
+.page-header .date { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+/* 3. Stats Grid (2 Columns on Mobile) */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.stats-grid .card:first-child { grid-column: span 2; }
+
+@media (min-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+    .stats-grid .card:first-child { grid-column: auto; }
+}
+
+.card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 1rem;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Stat Typography */
+.stat-card h3 {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+}
+
+.stat-card .number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-main);
+    line-height: 1.2;
+}
+
+.trend { 
+    font-size: 0.75rem; 
+    font-weight: 700; 
+    margin-top: 0.25rem;
+    display: inline-block;
+}
+.trend.up { color: var(--success-green); }
+.trend.down { color: var(--danger-red); }
+.trend.neutral { color: var(--text-muted); }
+
+/* 4. Chart Section */
+.chart-section {
+    padding: 1rem;
+    height: 350px;
+    width: 100%;
+}
+
+.chart-header h2 { 
+    font-size: 1rem; 
+    font-weight: 700; 
+    margin-bottom: 0.5rem; 
+}
+
+.chart-container {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+/* 5. Footer & Discreet Login */
+.dashboard-footer {
+    width: 100%;
+    padding: 1.5rem;
+    text-align: center;
+    background-color: transparent; /* Seamless look */
+    margin-top: auto; /* Safety fallback */
+}
+
+.dashboard-footer p {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    opacity: 0.7;
+    margin-bottom: 0.5rem;
+}
+
+.discreet-link {
+    font-size: 0.8rem;
+    color: var(--text-muted); 
+    text-decoration: none;
+    opacity: 0.5;
+    transition: opacity 0.2s, color 0.2s;
+    border-bottom: 1px dotted transparent;
+}
+
+.discreet-link:hover {
+    opacity: 1;
+    color: var(--primary-blue);
+    border-bottom-color: var(--primary-blue);
+}

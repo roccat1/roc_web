@@ -1,0 +1,128 @@
+/* 1. Variables & Reset */
+:root {
+    --primary-blue: #3b82f6;       /* Bright Modern Blue */
+    --dark-blue: #1d4ed8;          /* Hover State */
+    --bg-blue: #eff6ff;            /* Very light blue background */
+    --text-main: #1e293b;          /* Dark Slate */
+    --text-muted: #64748b;         /* Muted Blue-Grey */
+    --white: #ffffff;
+    --radius: 12px;                /* Rounded corners */
+    --shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1), 
+              0 2px 4px -1px rgba(59, 130, 246, 0.06);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* 2. Layout (Mobile First) */
+body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-blue);
+    color: var(--text-main);
+    display: grid;
+    place-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* 3. Login Card */
+.login-form {
+    background-color: var(--white);
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 400px; /* Constraints width on larger screens */
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* 4. Typography */
+.header h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.header p {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+/* 5. Inputs & Buttons */
+input {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: var(--radius);
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+    background-color: #f8fafc;
+}
+
+input:focus {
+    border-color: var(--primary-blue);
+    background-color: var(--white);
+}
+
+button {
+    width: 100%;
+    padding: 0.875rem;
+    background-color: var(--primary-blue);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+button:hover {
+    background-color: var(--dark-blue);
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+/* 6. Return Home Button (NEW) */
+.form-footer {
+    text-align: center;
+    margin-top: 0.5rem;
+}
+
+.btn-return {
+    text-decoration: none;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.2s;
+    padding: 0.5rem;
+}
+
+.btn-return:hover {
+    color: var(--primary-blue);
+}
+
+/* 7. Utilities */
+/* Screen Reader Only - Accessible hiding */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}

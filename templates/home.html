@@ -1,6 +1,78 @@
-{% extends "layout.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Roc Rodriguez</title>
+    <link rel="stylesheet" href="static/css/home.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
 
-{% block content %}
-    <h1>Public Home Page</h1>
-    <a href="{{ url_for('login') }}">Go to Login</a>
-{% endblock %}
+    <script>
+    const logs = {{ logs | tojson }};
+    
+</script>
+
+    <main class="dashboard-container">
+        
+        <header class="page-header">
+            <h1>Vista general de caques</h1>
+            <p class="date">Última caca: ERROR</p>
+        </header>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul>{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
+            {% endif %}
+        {% endwith %}
+<!--
+        <section class="stats-grid">
+            <div class="card stat-card">
+                <h3>Total Viewers</h3>
+                <p class="number">12,450</p>
+                <span class="trend up">▲ 12%</span>
+            </div>
+            <div class="card stat-card">
+                <h3>Active Users</h3>
+                <p class="number">1,024</p>
+                <span class="trend up">▲ 5%</span>
+            </div>
+            <div class="card stat-card">
+                <h3>Avg. Watch Time</h3>
+                <p class="number">8m 30s</p>
+                <span class="trend down">▼ 2%</span>
+            </div>
+            <div class="card stat-card">
+                <h3>Retention</h3>
+                <p class="number">64%</p>
+                <span class="trend up">▲ 1%</span>
+            </div>
+            <div class="card stat-card">
+                <h3>Bounce Rate</h3>
+                <p class="number">22%</p>
+                <span class="trend neutral">− 0%</span>
+            </div>
+        </section>
+-->
+        <section class="card chart-section">
+            <div class="chart-header">
+                <h2>Últims 30 dies</h2>
+            </div>
+            <div class="chart-container">
+                <canvas id="trafficChart"></canvas>
+            </div>
+        </section>
+
+        <h2>Recent Logs</h2>
+
+    </main>
+
+    <footer class="dashboard-footer">
+        <p>© 2026 Roc Rodriguez</p>
+        <a href="/login" class="discreet-link">Admin Login</a>
+    </footer>
+
+    <script src="static/js/home.js"></script>
+</body>
+</html>

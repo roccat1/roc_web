@@ -1,0 +1,5 @@
+
+<a href="{{ url_for('logout') }}">Logout</a>
+
+INSERT INTO poop (log_time) VALUES (NOW());
+DATETIME
