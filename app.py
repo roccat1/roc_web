@@ -1,14 +1,18 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
-import mysql.connector
+import mysql.connector, os
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 db_config = {
-    'user': 'uhxz1wbzdylnyvrq',
-    'password': 'ylekcjaHoig11EDQ2zns',
-    'host': 'bu174ajwhogc1hmjsasc-mysql.services.clever-cloud.com',
-    'database': 'bu174ajwhogc1hmjsasc',
-    'port': 3306
+    'user': os.environ['USER'],
+    'password': os.environ['PASSWORD'],
+    'host': os.environ['HOST'],
+    'database': os.environ['DATABASE'],
+    'port': os.environ['PORT']
 }
 
 app = Flask(__name__)
