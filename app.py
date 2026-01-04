@@ -34,6 +34,12 @@ def load_user(password):
 
 @app.route('/')
 def home():
+    # log
+    app.logger.info('Home page accessed')
+    # Get the user's IP address
+    user_ip = request.remote_addr
+    app.logger.info(f'User IP: {user_ip}')
+    
     return render_template('home.html')
 
 @app.route('/login', methods=['GET', 'POST'])
