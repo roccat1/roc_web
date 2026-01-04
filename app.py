@@ -20,7 +20,7 @@ application = app
 
 # SECURITY CRITICAL: This key signs the cookie. 
 # In production, make this a long random string and hide it in environment variables.
-app.secret_key = 'caca culo pedo pis 58426'
+app.secret_key = os.environ['SECRET_KEY']
 
 # Setup Flask-Login
 login_manager = LoginManager()
@@ -30,7 +30,7 @@ login_manager.login_view = 'login' # Where to send users who aren't logged in
 # --- MOCK DATABASE ---
 # In a real app, you would use SQLite, PostgreSQL, etc.
 # Here we verify against a simple dictionary.
-users_db = ["roc"]
+users_db = [os.environ['WEB_PASSWORD']]
 
 # User Class (Standard requirement for Flask-Login)
 class User(UserMixin):
