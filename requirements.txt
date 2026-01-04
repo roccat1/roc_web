@@ -1,5 +1,5 @@
 Flask
 Flask-Login
-sqlite3
 mysql-connector-python
 os
+dotenv
