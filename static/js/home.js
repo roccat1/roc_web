@@ -73,6 +73,70 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         return result;
     }
+    function updateDashboardStats() {
+        const now = new Date();
+        const oneDayMs = 1000 * 60 * 60 * 24;
+
+        // 1. Total Logs
+        const totalCount = allDates.length;
+        document.getElementById('statTotal').textContent = totalCount.toLocaleString();
+
+        // Helper: Count logs within the last X days
+        function getCountInWindow(days) {
+            const cutoff = new Date(now.getTime() - (days * oneDayMs));
+            return allDates.filter(d => d >= cutoff).length;
+        }
+
+        // 2. Avg / Day (Last 30 Days)
+        const count30 = getCountInWindow(30);
+        // Changed to 2 decimals
+        document.getElementById('statAvg30').textContent = (count30 / 30).toFixed(2);
+
+        // 3. Avg / Day (Last 365 Days)
+        const count365 = getCountInWindow(365);
+        // Changed to 2 decimals
+        document.getElementById('statAvg365').textContent = (count365 / 365).toFixed(2);
+
+        // 4. Avg / Day (Ever)
+        if (timestamps.length > 0) {
+            const firstDate = new Date(Math.min(...timestamps));
+            const daysDiff = (now - firstDate) / oneDayMs;
+            const daysActive = Math.max(1, Math.floor(daysDiff)); 
+            // Changed to 2 decimals
+            document.getElementById('statAvgEver').textContent = (totalCount / daysActive).toFixed(2);
+        } else {
+            document.getElementById('statAvgEver').textContent = "0.00";
+        }
+
+        // 5. Peak Hour (Last 30 Days Only)
+        const cutoff30 = new Date(now.getTime() - (30 * oneDayMs));
+        const logsLast30 = allDates.filter(d => d >= cutoff30);
+
+        if (logsLast30.length > 0) {
+            const hourCounts = {};
+            logsLast30.forEach(d => {
+                const hour = d.getHours(); // Local time
+                hourCounts[hour] = (hourCounts[hour] || 0) + 1;
+            });
+
+            // Find the hour with the highest count
+            let maxHour = 0;
+            let maxCount = 0;
+            for (const [hour, count] of Object.entries(hourCounts)) {
+                if (count > maxCount) {
+                    maxCount = count;
+                    maxHour = hour;
+                }
+            }
+            // Format as "09:00"
+            const hourStr = maxHour.toString().padStart(2, '0');
+            document.getElementById('statPeakHour').textContent = `${hourStr}:00`;
+        } else {
+            document.getElementById('statPeakHour').textContent = "-";
+        }
+    }
+
+    updateDashboardStats();
 
     // --- 3. DATA LOGIC ENGINE ---
     let myChart = null; 
