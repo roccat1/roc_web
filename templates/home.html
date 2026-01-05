@@ -9,56 +9,35 @@
 </head>
 <body>
 
-    <script>
-    const logs = {{ logs | tojson }};
-    
-</script>
+    <script>const logs = {{ logs | tojson }};</script>
 
     <main class="dashboard-container">
         
         <header class="page-header">
-            <h1>Vista general de caques</h1>
-            <p class="date">Última caca: ERROR</p>
+            <h1>Vista general</h1>
+            <p class="date">Carregant...</p>
         </header>
 
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <ul>{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
-            {% endif %}
-        {% endwith %}
-<!--
-        <section class="stats-grid">
-            <div class="card stat-card">
-                <h3>Total Viewers</h3>
-                <p class="number">12,450</p>
-                <span class="trend up">▲ 12%</span>
-            </div>
-            <div class="card stat-card">
-                <h3>Active Users</h3>
-                <p class="number">1,024</p>
-                <span class="trend up">▲ 5%</span>
-            </div>
-            <div class="card stat-card">
-                <h3>Avg. Watch Time</h3>
-                <p class="number">8m 30s</p>
-                <span class="trend down">▼ 2%</span>
-            </div>
-            <div class="card stat-card">
-                <h3>Retention</h3>
-                <p class="number">64%</p>
-                <span class="trend up">▲ 1%</span>
-            </div>
-            <div class="card stat-card">
-                <h3>Bounce Rate</h3>
-                <p class="number">22%</p>
-                <span class="trend neutral">− 0%</span>
-            </div>
-        </section>
--->
+       
+
         <section class="card chart-section">
             <div class="chart-header">
-                <h2>Últims 30 dies</h2>
+                <div class="control-group">
+                    <select id="chartView" class="chart-select">
+                        <option value="last30">Últims 30 dies</option>
+                        <option value="last365">Últim any (Detall)</option>
+                        <option value="monthly">Mitjana per Mesos</option>
+                        <option value="yearly">Mitjana per Anys</option>
+                    </select>
+                </div>
+
+                <div id="chartNav" class="control-group nav-group">
+                    <button id="prevPeriod" class="nav-arrow">&larr;</button>
+                    <span id="chartDateLabel" class="chart-date-label">Dates</span>
+                    <button id="nextPeriod" class="nav-arrow" disabled>&rarr;</button>
+                </div>
             </div>
+            
             <div class="chart-container">
                 <canvas id="trafficChart"></canvas>
             </div>
@@ -68,7 +47,7 @@
 
     <footer class="dashboard-footer">
         <p>© 2026 Roc Rodriguez</p>
-        <a href="/login" class="discreet-link">Admin Login</a>
+        <a href="/login" class="discreet-link">Admin</a>
     </footer>
 
     <script src="static/js/home.js"></script>

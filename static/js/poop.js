@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const data = new FormData();
 
         const now = new Date();
-        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); // Delete timezone offset
         const timeString = now.toISOString().slice(0, 16);
 
         console.log("Logging time:", timeString);
