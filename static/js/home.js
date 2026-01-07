@@ -17,34 +17,49 @@ document.addEventListener('DOMContentLoaded', function() {
     // Update "Last Update" Text
     const dateElement = document.querySelector('.date');
     if (dateElement && timestamps.length > 0) {
-        const newestDate = new Date(Math.max(...timestamps));
+        // 1. Get the date JS thinks is correct (which includes the unwanted timezone shift)
+        const rawDate = new Date(Math.max(...timestamps));
+
+        // 2. FIX: "Saved as UTC but actually set hour"
+        // We subtract the browser's timezone offset to force the numbers to match the database exactly.
+        const newestDate = new Date(rawDate.getTime() + (rawDate.getTimezoneOffset() * 60000));
+        
         const now = new Date();
-        // set as utc
-        now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); // Delete timezone offset
-        const minutesAgo = (now - newestDate) / (1000 * 60);
+        const diffMs = now - newestDate;
+        const minutesAgo = diffMs / (1000 * 60);
         
-        let timeStr = minutesAgo < 60 
-            ? `${Math.round(minutesAgo)} min` 
-            : `${(minutesAgo / 60).toFixed(1)} h`;
-        
-        if (minutesAgo > 1440) timeStr = `${Math.round(minutesAgo/1440)} dies`;
+        // 3. Format the "Time Ago" string
+        let timeAgoStr;
+        if (minutesAgo < 60) {
+            timeAgoStr = `${Math.max(0, Math.round(minutesAgo))} min`;
+        } else if (minutesAgo < 1440) {
+            timeAgoStr = `${(minutesAgo / 60).toFixed(1)} h`;
+        } else {
+            timeAgoStr = `${Math.round(minutesAgo/1440)} dies`;
+        }
 
-        const today = new Date();
-        today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
-        const isToday = newestDate.toDateString() === today.toDateString();
+        // 4. Format the Date Label (Avui vs Date)
+        const isToday = newestDate.toDateString() === now.toDateString();
         
-        const dateString = isToday 
-            ? newestDate.toLocaleString('ca-ES', { 
-            timeZone: 'UTC', 
-            hour: '2-digit', minute: '2-digit'
-              })
-            : newestDate.toLocaleString('ca-ES', { 
-            timeZone: 'UTC', 
-            hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' 
-              });
-        dateElement.textContent = `Última: fa ${timeStr} (${dateString})`;
+        let dateLabel;
+        if (isToday) {
+            // If today: "Avui a les 10:30"
+            const timeStr = newestDate.toLocaleTimeString('ca-ES', { 
+                hour: '2-digit', minute: '2-digit' 
+            });
+            dateLabel = `Avui a les ${timeStr}`;
+        } else {
+            // If older: "07/01 a les 10:30"
+            dateLabel = newestDate.toLocaleString('ca-ES', { 
+                day: '2-digit', month: '2-digit',
+                hour: '2-digit', minute: '2-digit'
+            });
+        }
+        
+        // Final Output: "Última: Avui a les 10:30 (fa 5 min)"
+        dateElement.textContent = `Última: ${dateLabel} (fa ${timeAgoStr})`;
     }
-
+    
     // --- 2. MATH HELPERS (STRICT UTC) ---
 
     function getDayOfYearUTC(date) {
