@@ -19,6 +19,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (dateElement && timestamps.length > 0) {
         const newestDate = new Date(Math.max(...timestamps));
         const now = new Date();
+        // set as utc
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); // Delete timezone offset
         const minutesAgo = (now - newestDate) / (1000 * 60);
         
         let timeStr = minutesAgo < 60 
@@ -27,10 +29,19 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (minutesAgo > 1440) timeStr = `${Math.round(minutesAgo/1440)} dies`;
 
-        const dateString = newestDate.toLocaleString('ca-ES', { 
+        const today = new Date();
+        today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
+        const isToday = newestDate.toDateString() === today.toDateString();
+        
+        const dateString = isToday 
+            ? newestDate.toLocaleString('ca-ES', { 
+            timeZone: 'UTC', 
+            hour: '2-digit', minute: '2-digit'
+              })
+            : newestDate.toLocaleString('ca-ES', { 
             timeZone: 'UTC', 
             hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' 
-        });
+              });
         dateElement.textContent = `Última: fa ${timeStr} (${dateString})`;
     }
 
