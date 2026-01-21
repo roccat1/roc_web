@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Track Event</title>
-    <link rel="stylesheet" href="static/css/poop.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/poop.css') }}">
 </head>
 <body>
 
     <nav class="top-nav">
         <div class="nav-group">
             <a href="/dashboard" class="nav-link">To do</a>
-            <a href="/poop" class="nav-link active">Caca</a>
+            <a href="/private/poop" class="nav-link active">Caca</a>
             <a href="/" class="nav-link">Home</a>
         </div>
         <a href={{ url_for('logout') }} class="btn-logout">Logout</a>
@@ -72,6 +72,6 @@
         <p>© 2024 Analytics Corp</p>
     </footer>
 
-    <script src="static/js/poop.js"></script>
+    <script src="{{ url_for('static', filename='js/poop.js') }}"></script>
 </body>
 </html>

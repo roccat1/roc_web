@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="cat">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
+<body>
+
+    <main class="login-wrapper">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <form class="login-form" action="" method="POST">
+            <div class="header">
+                <h2>Crear Compte</h2>
+                <p>Registra't per accedir.</p>
+            </div>
+
+            <label for="username" class="sr-only">Usuari</label>
+            
+            <input 
+                type="text" 
+                id="username" 
+                name="username" 
+                placeholder="Usuari" 
+                value="{{ request.form.get('username', '') }}"
+                required 
+                autofocus
+            >
+
+            <label for="email" class="sr-only">Email</label>
+            
+            <input 
+                type="email" 
+                id="email" 
+                name="email" 
+                placeholder="Email" 
+                value="{{ request.form.get('email', '') }}"
+                required
+            >
+
+            <label for="password" class="sr-only">Contrassenya</label>
+            
+            <input 
+                type="password" 
+                id="password" 
+                name="password" 
+                placeholder="Contrassenya" 
+                required
+            >
+
+            <label for="confirm_password" class="sr-only">Confirma Contrassenya</label>
+            
+            <input 
+                type="password" 
+                id="confirm_password" 
+                name="confirm_password" 
+                placeholder="Confirma Contrassenya" 
+                required
+            >
+
+            <div class="privacy-section">
+                <label>Privacitat del Perfil</label>
+                <div class="privacy-buttons">
+                    <button type="button" class="privacy-btn" id="private-btn" data-value="private">
+                        🔒 Privat
+                    </button>
+                    <button type="button" class="privacy-btn" id="public-btn" data-value="public" style="background-color: #3b82f6; color: black;">
+                        🌐 Públic
+                    </button>
+                </div>
+                <input type="hidden" id="privacy-input" name="privacy" value="public">
+            </div>
+
+            <button type="submit">Registrar-se</button>
+
+            <script>
+                const privacyBtns = document.querySelectorAll('.privacy-btn');
+                const privacyInput = document.getElementById('privacy-input');
+                
+                privacyBtns.forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        privacyBtns.forEach(b => b.style.backgroundColor = '');
+                        btn.style.backgroundColor = '#3b82f6';
+                        privacyInput.value = btn.dataset.value;
+                    });
+                });
+            </script>
+
+            <div class="form-footer">
+                <a href="/" class="btn-return">← Return Home</a>
+                <a href="/login" class="btn-register">Login</a>
+            </div>
+
+        </form>
+    </main>
+
+</body>
+</html>

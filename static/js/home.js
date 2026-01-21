@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
 
     // ================= CONFIGURATION =================
-    // Define the moving average window size (in days/units) for each view.
     const SMOOTHING_WINDOWS = {
         last30: 3,    
         last365: 7,   
@@ -11,54 +10,32 @@ document.addEventListener('DOMContentLoaded', function() {
     // =================================================
 
     // --- 1. PREP DATA ---
-    const allDates = logs.map(row => row[1] ? new Date(row[1]) : null).filter(d => d && !isNaN(d));
+    function parseAsDatabaseTime(dateString) {
+        if (!dateString) return null;
+        
+        // The input is now "2026-01-21T21:52:00"
+        // When we do new Date("..."), the browser treats this ISO format (without Z) 
+        // as "Local Browser Time". 
+        // So 21:52 becomes 21:52 on the user's clock. Perfect.
+        const d = new Date(dateString);
+        
+        // We still need to create a UTC object for the chart logic to work 
+        // consistently across the rest of your script
+        return new Date(Date.UTC(
+            d.getFullYear(),
+            d.getMonth(),
+            d.getDate(),
+            d.getHours(),
+            d.getMinutes(),
+            d.getSeconds()
+        ));
+    }
+
+    // Apply the helper
+    const allDates = logs.map(row => parseAsDatabaseTime(row[2])).filter(d => d);
     const timestamps = allDates.map(d => d.getTime());
 
-    // Update "Last Update" Text
-    const dateElement = document.querySelector('.date');
-    if (dateElement && timestamps.length > 0) {
-        // 1. Get the date JS thinks is correct (which includes the unwanted timezone shift)
-        const rawDate = new Date(Math.max(...timestamps));
-
-        // 2. FIX: "Saved as UTC but actually set hour"
-        // We subtract the browser's timezone offset to force the numbers to match the database exactly.
-        const newestDate = new Date(rawDate.getTime() + (rawDate.getTimezoneOffset() * 60000));
-        
-        const now = new Date();
-        const diffMs = now - newestDate;
-        const minutesAgo = diffMs / (1000 * 60);
-        
-        // 3. Format the "Time Ago" string
-        let timeAgoStr;
-        if (minutesAgo < 60) {
-            timeAgoStr = `${Math.max(0, Math.round(minutesAgo))} min`;
-        } else if (minutesAgo < 1440) {
-            timeAgoStr = `${(minutesAgo / 60).toFixed(1)} h`;
-        } else {
-            timeAgoStr = `${Math.round(minutesAgo/1440)} dies`;
-        }
-
-        // 4. Format the Date Label (Avui vs Date)
-        const isToday = newestDate.toDateString() === now.toDateString();
-        
-        let dateLabel;
-        if (isToday) {
-            // If today: "Avui a les 10:30"
-            const timeStr = newestDate.toLocaleTimeString('ca-ES', { 
-                hour: '2-digit', minute: '2-digit' 
-            });
-            dateLabel = `Avui a les ${timeStr}`;
-        } else {
-            // If older: "07/01 a les 10:30"
-            dateLabel = newestDate.toLocaleString('ca-ES', { 
-                day: '2-digit', month: '2-digit',
-                hour: '2-digit', minute: '2-digit'
-            });
-        }
-        
-        // Final Output: "Última: Avui a les 10:30 (fa 5 min)"
-        dateElement.textContent = `Última: ${dateLabel} (fa ${timeAgoStr})`;
-    }
+    // ... rest of the code ...
     
     // --- 2. MATH HELPERS (STRICT UTC) ---
 
@@ -99,6 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         return result;
     }
+
     function updateDashboardStats() {
         const now = new Date();
         const oneDayMs = 1000 * 60 * 60 * 24;
@@ -115,12 +93,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // 2. Avg / Day (Last 30 Days)
         const count30 = getCountInWindow(30);
-        // Changed to 2 decimals
         document.getElementById('statAvg30').textContent = (count30 / 30).toFixed(2);
 
         // 3. Avg / Day (Last 365 Days)
         const count365 = getCountInWindow(365);
-        // Changed to 2 decimals
         document.getElementById('statAvg365').textContent = (count365 / 365).toFixed(2);
 
         // 4. Avg / Day (Ever)
@@ -128,7 +104,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const firstDate = new Date(Math.min(...timestamps));
             const daysDiff = (now - firstDate) / oneDayMs;
             const daysActive = Math.max(1, Math.floor(daysDiff)); 
-            // Changed to 2 decimals
             document.getElementById('statAvgEver').textContent = (totalCount / daysActive).toFixed(2);
         } else {
             document.getElementById('statAvgEver').textContent = "0.00";
@@ -141,11 +116,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (logsLast30.length > 0) {
             const hourCounts = {};
             logsLast30.forEach(d => {
-                const hour = d.getHours(); // Local time
+                const hour = d.getUTCHours(); // UPDATED: Use UTC Hours
                 hourCounts[hour] = (hourCounts[hour] || 0) + 1;
             });
 
-            // Find the hour with the highest count
             let maxHour = 0;
             let maxCount = 0;
             for (const [hour, count] of Object.entries(hourCounts)) {
@@ -154,7 +128,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     maxHour = hour;
                 }
             }
-            // Format as "09:00"
             const hourStr = maxHour.toString().padStart(2, '0');
             document.getElementById('statPeakHour').textContent = `${hourStr}:00`;
         } else {
@@ -177,14 +150,13 @@ document.addEventListener('DOMContentLoaded', function() {
         let isNavigable = false;
 
         // =========================================================
-        // VIEW: LAST 30 DAYS (Hybrid: Rolling -> Full Months)
+        // VIEW: LAST 30 DAYS 
         // =========================================================
         if (viewType === 'last30') {
             isNavigable = true;
             let startDate, endDate;
 
             if (offset === 0) {
-                // Offset 0: Show Last 30 Days (Rolling)
                 endDate = new Date(); 
                 startDate = new Date();
                 startDate.setDate(endDate.getDate() - 29); 
@@ -193,7 +165,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 const endStr = endDate.toLocaleDateString('ca-ES', { timeZone: 'UTC', day:'numeric', month:'short'});
                 labelText = `${startStr} - ${endStr}`;
             } else {
-                // Offset > 0: Show Full Calendar Months
                 const now = new Date();
                 const targetDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - offset, 1));
                 
@@ -222,23 +193,21 @@ document.addEventListener('DOMContentLoaded', function() {
         } 
         
         // =========================================================
-        // VIEW: LAST YEAR (Reverted to Hybrid: Rolling -> Full Years)
+        // VIEW: LAST YEAR 
         // =========================================================
         else if (viewType === 'last365') {
             isNavigable = true;
             let startDate, endDate;
 
             if (offset === 0) {
-                // Offset 0: Rolling last 365 days
                 endDate = new Date();
                 startDate = new Date();
                 startDate.setDate(endDate.getDate() - 364);
                 labelText = "Últims 365 dies";
             } else {
-                // Offset > 0: Full Calendar Years
                 const targetYear = new Date().getFullYear() - offset;
-                startDate = new Date(Date.UTC(targetYear, 0, 1)); // Jan 1
-                endDate = new Date(Date.UTC(targetYear, 11, 31)); // Dec 31
+                startDate = new Date(Date.UTC(targetYear, 0, 1));
+                endDate = new Date(Date.UTC(targetYear, 11, 31));
                 labelText = `Any ${targetYear}`;
             }
 
@@ -260,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } 
         
         // =========================================================
-        // VIEW: MONTHLY AGGREGATE
+        // VIEW: MONTHLY
         // =========================================================
         else if (viewType === 'monthly') {
             isNavigable = false; 
@@ -282,18 +251,18 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             smoothData = calculateMovingAverage(calculatedValues, SMOOTHING_WINDOWS.monthly);
-            rawData = []; // Hide raw data
+            rawData = []; 
         } 
         
         // =========================================================
-        // VIEW: YEARLY AGGREGATE
+        // VIEW: YEARLY
         // =========================================================
         else if (viewType === 'yearly') {
             isNavigable = false;
             labelText = "Històric (Mitjana vs Total)";
 
             allDates.forEach(d => {
-                const key = d.getUTCFullYear().toString();
+                const key = d.getUTCFullYear().toString(); // UPDATED: UTC
                 counts[key] = (counts[key] || 0) + 1;
             });
 
@@ -308,6 +277,43 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             smoothData = calculateMovingAverage(rawData, SMOOTHING_WINDOWS.yearly); 
+        }
+
+        // =========================================================
+        // VIEW: HOURLY (15-minute intervals)
+        // =========================================================
+        else if (viewType === 'hours') {
+            isNavigable = false;
+            labelText = "Per hora (15 min)";
+
+            // 1. Generate all 96 intervals (00:00 to 23:45)
+            for (let i = 0; i < 96; i++) {
+                const hours = Math.floor(i / 4);
+                const mins = (i % 4) * 15;
+                const label = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+                labels.push(label);
+                counts[label] = 0;
+            }
+
+            // 2. Fill with Real Data
+            allDates.forEach(d => {
+                const hours = d.getUTCHours();     
+                const mins = d.getUTCMinutes();    
+                // Calculate which 15-min slot this falls into
+                const slot = hours * 4 + Math.floor(mins / 15);
+                
+                // Reconstruct label to match the generated keys
+                const slotHours = Math.floor(slot / 4);
+                const slotMins = (slot % 4) * 15;
+                const label = `${String(slotHours).padStart(2, '0')}:${String(slotMins).padStart(2, '0')}`;
+                
+                if (counts.hasOwnProperty(label)) counts[label]++;
+            });
+
+            rawData = labels.map(k => counts[k]);
+            
+            // 3. APPLY SMOOTHING OF 2 (As requested)
+            smoothData = calculateMovingAverage(rawData, 2);
         }
 
         return { labels, rawData, smoothData, labelText, isNavigable };
@@ -333,15 +339,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         const ctx = document.getElementById('trafficChart').getContext('2d');
+        
+        // CONFIGURATION PER VIEW
+        const isYearly = (viewType === 'yearly');
+        
+        // CHANGE: We treat 'hours' as a LINE chart now, so we can see both Real Data and Tendency
+        // If you strictly want bars for hours, we would need a mixed-chart config.
+        // Keeping it false ensures consistent look with "Last 30 Days".
+        const isBarChart = false; 
 
-        // VISUAL CONFIG
-        const lineTension = (viewType === 'yearly') ? 0 : 0.4;
-        const dotRadius = (viewType === 'yearly') ? 4 : 0;
+        const lineTension = isYearly ? 0 : 0.4;
+        const dotRadius = isYearly ? 4 : 0; // Small dots for yearly, no dots for others to look cleaner
 
         if (!myChart) {
-            // === INIT ===
             myChart = new Chart(ctx, {
-                type: 'line',
+                type: 'line', // Always line to support dual datasets
                 data: {
                     labels: labels,
                     datasets: [
@@ -365,7 +377,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             fill: false,
                             pointRadius: 0, 
                             pointHoverRadius: 4,
-                            tension: 0, 
+                            tension: 0, // Real data is always jagged
                             order: 2 
                         }
                     ]
@@ -381,28 +393,27 @@ document.addEventListener('DOMContentLoaded', function() {
                         x: { 
                             grid: { display: false }, 
                             ticks: { 
-                                maxRotation: 45, minRotation: 45, autoSkip: true, maxTicksLimit: 10,
-                                callback: function(value, index, values) {
-                                    const label = this.getLabelForValue(value);
-                                    if(label.length > 4) {
-                                        const d = new Date(label);
-                                        return d.toLocaleDateString('ca-ES', { timeZone: 'UTC', day: '2-digit', month: '2-digit' });
-                                    }
-                                    return label;
-                                }
+                                maxRotation: 45, 
+                                minRotation: 45, 
+                                autoSkip: true, 
+                                maxTicksLimit: (viewType === 'hours') ? 24 : 10 
                             } 
                         }
                     }
                 }
             });
         } else {
-            // === UPDATE ===
+            // Update Data
             myChart.data.labels = labels;
-            myChart.data.datasets[0].data = smoothData;
-            myChart.data.datasets[1].data = rawData;
+            myChart.data.datasets[0].data = smoothData; // Tendency
+            myChart.data.datasets[1].data = rawData;    // Real Data
             
+            // Update Visual Styles based on view
             myChart.data.datasets[0].tension = lineTension;
             myChart.data.datasets[0].pointRadius = dotRadius;
+            
+            // Update X-Axis tick limit specific for hourly view
+            myChart.options.scales.x.ticks.maxTicksLimit = (viewType === 'hours') ? 24 : 10;
             
             myChart.update();
         }

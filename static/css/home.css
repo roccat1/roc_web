@@ -201,3 +201,51 @@ body {
 
 .dashboard-footer p { font-size: 0.75rem; color: var(--text-muted); opacity: 0.7; margin-bottom: 0.5rem; }
 .discreet-link { font-size: 0.8rem; color: var(--text-muted); text-decoration: none; opacity: 0.5; }
+
+/* User Selector Styles */
+.user-selector-section {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding: 0.85rem 1rem;
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.user-selector-section label {
+    font-weight: 600;
+    color: var(--text-muted);
+    white-space: nowrap;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.user-selector-section select {
+    flex: 1;
+    min-width: 120px;
+    padding: 0.65rem 0.9rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-main);
+    background-color: #f8fafc;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.user-selector-section select:hover {
+    border-color: var(--primary-blue);
+    background-color: var(--white);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+}
+
+.user-selector-section select:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    background-color: var(--white);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}

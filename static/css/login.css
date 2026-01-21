@@ -113,7 +113,107 @@ button:active {
     color: var(--primary-blue);
 }
 
-/* 7. Utilities */
+/* 7. Alerts/Messages */
+.alert {
+    padding: 1rem;
+    border-radius: var(--radius);
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.alert-success {
+    background-color: #d1fae5;
+    color: #065f46;
+    border-left: 4px solid #10b981;
+}
+
+.alert-success::before {
+    content: "✓";
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+.alert-error {
+    background-color: #fee2e2;
+    color: #7f1d1d;
+    border-left: 4px solid #ef4444;
+}
+
+.alert-error::before {
+    content: "✕";
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+.alert-info {
+    background-color: #dbeafe;
+    color: #0c4a6e;
+    border-left: 4px solid #3b82f6;
+}
+
+.alert-info::before {
+    content: "ℹ";
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+/* 7. Privacy Section */
+.privacy-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.privacy-section label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.privacy-buttons {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.privacy-btn {
+    flex: 1;
+    padding: 0.75rem;
+    border: 2px solid #e2e8f0;
+    border-radius: var(--radius);
+    background-color: white;
+    color: var(--text-main);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+}
+
+.privacy-btn:hover {
+    border-color: var(--primary-blue);
+    background-color: var(--bg-blue);
+}
+
+.privacy-btn[style*="background-color: #3b82f6"] {
+    color: white;
+    border-color: var(--primary-blue);
+}
+
+/* 8. Utilities */
 /* Screen Reader Only - Accessible hiding */
 .sr-only {
     position: absolute;

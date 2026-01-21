@@ -2,3 +2,4 @@ Flask
 Flask-Login
 mysql-connector-python
 dotenv
+werkzeug

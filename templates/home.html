@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Roc Rodriguez</title>
-    <link rel="stylesheet" href="static/css/home.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -15,8 +15,18 @@
         
         <header class="page-header">
             <h1>Vista general</h1>
-            <p class="date">Carregant...</p>
         </header>
+
+        <section class="card user-selector-section">
+            <label for="user-selector">Usuari:</label>
+            <select id="user-selector" onchange="location.href='?user_id=' + this.value;">
+                {% for user in users %}
+                    <option value="{{ user[0] }}" {% if user[0] == selected_user_id %}selected{% endif %}>
+                        {{ user[1] }}
+                    </option>
+                {% endfor %}
+            </select>
+        </section>
 
         <section class="stats-grid">
             <div class="card stat-card">
@@ -53,6 +63,7 @@
                         <option value="last365">Últim any (Detall)</option>
                         <option value="monthly">Mitjana per Mesos</option>
                         <option value="yearly">Mitjana per Anys</option>
+                        <option value="hours">Per hora (15 min)</option>
                     </select>
                 </div>
 
@@ -75,6 +86,6 @@
         <a href="/login" class="discreet-link">Admin</a>
     </footer>
 
-    <script src="static/js/home.js"></script>
+    <script src="{{ url_for('static', filename='js/home.js') }}"></script>
 </body>
 </html>

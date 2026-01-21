@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         data.append('user_time', timeString);
 
-        fetch('/poop', {
+        fetch('/private/poop', {
             method: 'POST',
             body: data 
             // Note: Do NOT set 'Content-Type'. The browser sets it automatically for FormData.
@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         data.append('user_time', dateInput.value);
 
-        fetch('/poop', {
+        fetch('/private/poop', {
             method: 'POST',
             body: data 
             // Note: Do NOT set 'Content-Type'. The browser sets it automatically for FormData.
