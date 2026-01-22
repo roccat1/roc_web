@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuració de l'Usuari</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}">
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="nav-group">
+            <a href="/dashboard" class="nav-link">Tasques</a>
+            <a href="/private/poop" class="nav-link">Caca</a>
+            <a href="/private/user" class="nav-link active">Privacitat</a>
+            <a href="/" class="nav-link">Inici</a>
+        </div>
+        <a href="{{ url_for('logout') }}" class="btn-logout">Tanca Sessió</a>
+    </nav>
+
+    <main class="main-container">
+        <header class="page-header">
+            <h1>El Teu Perfil</h1>
+            <p>Gestiona la teva privacitat i configuració</p>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message {{ category }}">
+                            {{ message|safe }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <section class="card">
+            <div class="form-header">
+                <h2>Visibilitat del Perfil</h2>
+                <p>Decideix qui pot veure la teva activitat.</p>
+            </div>
+
+            <form action="/private/user" method="POST" id="privacy-form">
+                <div class="privacy-section">
+                    <span class="input-label">Selecciona una opció</span>
+                    
+                    <div class="privacy-buttons">
+                        <button type="button" class="privacy-btn" id="private-btn" data-value="private">
+                            🔒 Privat
+                        </button>
+                        <button type="button" class="privacy-btn" id="public-btn" data-value="public">
+                            🌐 Públic
+                        </button>
+                    </div>
+
+                    <input type="hidden" id="privacy-input" name="privacy" value="{{ user_privacy }}">
+                </div>
+
+                <button type="submit" class="btn-submit">Desa els Canvis</button>
+            </form>
+        </section>
+    </main>
+
+    <footer class="page-footer">
+        <p>2026 Roc Rodriguez</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const privacyBtns = document.querySelectorAll('.privacy-btn');
+            const privacyInput = document.getElementById('privacy-input');
+            const currentValue = privacyInput.value;
+
+            // 1. Initialize State: Highlight the button that matches the backend value
+            privacyBtns.forEach(btn => {
+                if (btn.dataset.value === currentValue) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // 2. Click Logic
+            privacyBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    // Remove active class from all
+                    privacyBtns.forEach(b => b.classList.remove('active'));
+                    
+                    // Add active class to clicked
+                    btn.classList.add('active');
+                    
+                    // Update hidden input
+                    privacyInput.value = btn.dataset.value;
+                });
+            });
+        });
+    </script>
+</body>
+</html>

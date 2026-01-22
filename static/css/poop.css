@@ -206,3 +206,45 @@ input:focus { border-color: var(--primary-blue); background-color: white; }
     font-size: 0.8rem;
     color: var(--text-muted);
 }
+
+/* Flash Messages */
+.flash-messages {
+    margin: 1rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.flash-message {
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius);
+    font-weight: 600;
+    box-shadow: var(--shadow);
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.flash-message.success {
+    background-color: var(--success-green);
+    color: var(--white);
+}
+
+.flash-message.error {
+    background-color: #ef4444;
+    color: var(--white);
+}
+
+.flash-message.info {
+    background-color: #3b82f6;
+    color: var(--white);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

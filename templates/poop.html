@@ -1,32 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ca">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Track Event</title>
+    <title>Registre d'Activitat</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/poop.css') }}">
 </head>
 <body>
 
     <nav class="top-nav">
         <div class="nav-group">
-            <a href="/dashboard" class="nav-link">To do</a>
+            <a href="/dashboard" class="nav-link">Tasques</a>
             <a href="/private/poop" class="nav-link active">Caca</a>
-            <a href="/" class="nav-link">Home</a>
+            <a href="/private/user" class="nav-link">Privacitat</a>
+            <a href="/" class="nav-link">Inici</a>
         </div>
-        <a href={{ url_for('logout') }} class="btn-logout">Logout</a>
+        <a href="{{ url_for('logout') }}" class="btn-logout">Tanca Sessió</a>
     </nav>
 
     <main class="main-container">
         
         <header class="page-header">
-            <h1>Tracker</h1>
-            <p>Log your activity</p>
+            <h1>Registre</h1>
+            <p>Registra la teva activitat</p>
         </header>
 
-        {% with messages = get_flashed_messages() %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-                <ul>{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message {{ category }}">
+                            {{ message|safe }}
+                        </div>
+                    {% endfor %}
+                </div>
             {% endif %}
         {% endwith %}
 
@@ -34,42 +41,42 @@
             <div id="initial-state" class="state-wrapper">
                 <button id="btn-poop-now" class="big-action-btn">
                     <span class="icon">💩</span>
-                    <span class="label">POOP NOW</span>
+                    <span class="label">CACA ARA</span>
                 </button>
             </div>
 
             <div id="confirm-state" class="state-wrapper hidden">
-                <h3>Are you sure?</h3>
-                <p>Confirm timestamp: <span id="current-time-display">12:00</span></p>
+                <h3>Estàs segur?</h3>
+                <p>Confirma l'hora: <span id="current-time-display">12:00</span></p>
                 <div class="confirm-actions">
-                    <button id="btn-cancel" class="btn-secondary">Cancel</button>
-                    <button id="btn-confirm" class="btn-primary">Yes, Save It</button>
+                    <button id="btn-cancel" class="btn-secondary">Cancel·la</button>
+                    <button id="btn-confirm" class="btn-primary">Sí, Desa-ho</button>
                 </div>
             </div>
 
             <div id="success-state" class="state-wrapper hidden">
                 <div class="success-icon">✓</div>
-                <h3>Saved Successfully!</h3>
+                <h3>Desat Correctament!</h3>
             </div>
         </section>
 
         <section class="card form-section">
             <div class="form-header">
-                <h2>Forgot to track?</h2>
-                <p>Enter a previous time manually</p>
+                <h2>T'has oblidat de registrar?</h2>
+                <p>Introdueix una hora anterior manualment</p>
             </div>
             
             <form id="manual-form">
-                <label for="past-date" class="input-label">Date & Time</label>
+                <label for="past-date" class="input-label">Data i Hora</label>
                 <input type="datetime-local" id="past-date" name="past-date" required>
-                <button type="submit" class="btn-submit">Log Previous</button>
+                <button type="submit" class="btn-submit">Registra-ho</button>
             </form>
         </section>
 
     </main>
 
     <footer class="page-footer">
-        <p>© 2024 Analytics Corp</p>
+        <p>2026 Roc Rodriguez</p>
     </footer>
 
     <script src="{{ url_for('static', filename='js/poop.js') }}"></script>

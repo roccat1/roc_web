@@ -53,16 +53,23 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => {
             if (response.ok) {
                 console.log("💩 Logged successfully!");
-                // Optional: Reload the page to see the new flash message/table entry
-                window.location.reload(); 
+                // Redirect to the same page to display the flash message
+                window.location.href = '/private/poop';
             } else {
                 console.error("Something went wrong.");
+                alert("Error: No s'ha pogut afegir el registre.");
             }
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => {
+            console.error('Error:', error);
+            alert("Error: Hi ha hagut un problema amb la connexió.");
+        });
 
-        successState.classList.add('hidden');
-        initialState.classList.remove('hidden');
+        // Reset UI after success
+        setTimeout(() => {
+            successState.classList.add('hidden');
+            initialState.classList.remove('hidden');
+        }, 3000);
     });
 
     // 4. Manual Form Logic - Set default time
@@ -90,8 +97,8 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => {
             if (response.ok) {
                 console.log("💩 Logged successfully!");
-                // Optional: Reload the page to see the new flash message/table entry
-                window.location.reload(); 
+                // Redirect to the same page to display the flash message
+                window.location.href = '/private/poop';
             } else {
                 console.error("Something went wrong.");
             }

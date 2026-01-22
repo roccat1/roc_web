@@ -58,53 +58,64 @@ def load_user(user_id):
 
 @app.route('/')
 def home():
-    # log
     app.logger.info('Home page accessed')
-    # Get the user's IP address
     user_ip = request.remote_addr
     app.logger.info(f'User IP: {user_ip}')
-    
-    selected_user_id = request.args.get('user_id', 1, type=int)
-    formatted_logs = []  # We will store the clean data here
+
+    # Check if the user is logged in and prioritize their ID unless a new user_id is explicitly provided
+    selected_user_id = request.args.get('user_id', type=int)
+    if not selected_user_id and current_user.is_authenticated:
+        selected_user_id = current_user.id
+    elif not selected_user_id:
+        selected_user_id = 1
+
+    formatted_logs = []
     users = []
 
     try:
-        # 1. Connect to database
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
 
-        # Fetch all users for the selector (only public users)
-        cursor.execute("SELECT id, username, email FROM users WHERE JSON_EXTRACT(config, '$.public') = true ORDER BY username")
+        # Fetch all public accounts
+        cursor.execute("SELECT id, username, email FROM users WHERE JSON_EXTRACT(config, '$.public') = true ORDER BY id ASC")
         users = cursor.fetchall()
+        
+        # If user is logged in and their account is private, add their own account to the list
+        if current_user.is_authenticated:
+            cursor.execute("SELECT JSON_EXTRACT(config, '$.public') FROM users WHERE id = %s", (current_user.id,))
+            privacy_result = cursor.fetchone()
+            
+            # If the user's account is private, add it to the users list
+            if privacy_result and privacy_result[0] == 'false':
+                cursor.execute("SELECT id, username, email FROM users WHERE id = %s", (current_user.id,))
+                user_data = cursor.fetchone()
+                if user_data and user_data not in users:
+                    users.append(user_data)
 
-        # 2. SELECT data for selected user
         sql = "SELECT id, user_id, log_time FROM poop WHERE user_id = %s ORDER BY log_time DESC"
         cursor.execute(sql, (selected_user_id,))
         raw_logs = cursor.fetchall()
 
-        # 3. CLEAN DATA (The Fix)
-        # We loop through the results and force the date to be a simple string
         for row in raw_logs:
             log_id = row[0]
             u_id = row[1]
-            dt_obj = row[2] # This is a python datetime object
-            
+            dt_obj = row[2]
+
             clean_date = None
             if dt_obj:
-                # Formats as "2026-01-21T21:52:00" (ISO 8601 without 'Z' or timezone)
                 clean_date = dt_obj.strftime('%Y-%m-%dT%H:%M:%S')
-            
+
             formatted_logs.append([log_id, u_id, clean_date])
 
-        # 4. Clean up
         conn.close()
 
     except Exception as e:
         app.logger.error(f"Database error on home: {e}")
         flash(f"Could not load data: {e}", "error")
-    
-    # Pass 'formatted_logs' instead of the raw cursor result
-    return render_template('home.html', logs=formatted_logs, users=users, selected_user_id=selected_user_id)
+
+    user_is_logged_in = current_user.is_authenticated
+
+    return render_template('home.html', logs=formatted_logs, users=users, selected_user_id=selected_user_id, user_is_logged_in=user_is_logged_in)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -122,13 +133,13 @@ def login():
             if user_data and check_password_hash(user_data[3], password):
                 user = User(user_data[0], user_data[2], user_data[1], user_data[4])
                 login_user(user, remember=True)
-                flash('Logged in successfully!', 'success')
-                return redirect(url_for('poop'))
+                flash('Has iniciat sessió correctament!', 'success')
+                return redirect(url_for('poop', _external=True))
             else:
-                flash('Invalid email or password', 'error')
+                flash('Correu electrònic o contrasenya incorrectes', 'error')
         except Exception as e:
             app.logger.error(f"Login error: {e}")
-            flash(f"Login error: {e}", 'error')
+            flash(f"Error d'inici de sessió: {e}", 'error')
     
     if current_user.is_authenticated:
         return redirect(url_for('poop'))
@@ -205,10 +216,18 @@ def poop():
             cursor.execute(sql, (current_user.id, user_date))
             conn.commit()
             conn.close()
-            flash(f'Logged to MySQL successfully: {user_date}', 'success')
+
+            # Format the datetime for a more user-friendly display
+            formatted_date = datetime.strptime(user_date, '%Y-%m-%dT%H:%M').strftime('%d/%m/%Y %H:%M')
+
+            flash(f'<strong>Èxit!</strong> Registre afegit correctament: <em>{formatted_date}</em>', 'success')
+            
+            return "OK", 200  # Return a simple response for AJAX
             
         except Exception as e:
-            flash(f"Database error: {e}", 'error')
+            flash(f"<strong>Error!</strong> Hi ha hagut un problema amb la base de dades: <em>{e}</em>", 'error')
+            
+            return str(e), 500
             
     return render_template('poop.html')
 
@@ -218,6 +237,50 @@ def logout():
     logout_user() # Deletes the cookie session
     flash('You have been logged out.', 'info')
     return redirect(url_for('login'))
+
+@app.route('/private/user', methods=['GET', 'POST'])
+@login_required
+def user():
+    if request.method == 'POST':
+        new_privacy = request.form.get('privacy')
+
+        if new_privacy not in ['public', 'private']:
+            flash('Configuració de privacitat no vàlida.', 'error')
+            return redirect(url_for('user'))
+
+        try:
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor()
+
+            # Update the user's privacy setting
+            sql = "UPDATE users SET config = JSON_SET(config, '$.public', %s) WHERE id = %s"
+            cursor.execute(sql, (new_privacy == 'public', current_user.id))
+            conn.commit()
+            conn.close()
+
+            flash('La configuració de privacitat s\'ha actualitzat correctament.', 'success')
+        except Exception as e:
+            app.logger.error(f"Error updating privacy: {e}")
+            flash('Hi ha hagut un problema actualitzant la configuració de privacitat.', 'error')
+
+        return redirect(url_for('user'))
+
+    # Fetch the current privacy setting
+    user_privacy = 'private'
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        sql = "SELECT JSON_EXTRACT(config, '$.public') FROM users WHERE id = %s"
+        cursor.execute(sql, (current_user.id,))
+        result = cursor.fetchone()
+        conn.close()
+
+        if result and result[0] == 'true':
+            user_privacy = 'public'
+    except Exception as e:
+        app.logger.error(f"Error fetching privacy setting: {e}")
+
+    return render_template('user.html', user_privacy=user_privacy)
 
 if __name__ == '__main__':
     app.run(debug=True)

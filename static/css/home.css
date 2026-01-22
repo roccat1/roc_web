@@ -25,12 +25,72 @@ body {
     min-height: 100vh;
     
     /* MOBILE UPDATE: Minimal padding on edges for maximum width */
-    padding: 0.5rem; 
+    padding: 0; 
 }
 
 /* DESKTOP UPDATE: Restore comfortable padding on larger screens */
 @media (min-width: 768px) {
-    body { padding: 1.5rem; }
+    body { padding: 0; }
+}
+
+/* TOP NAVIGATION (Matched to poop.css) */
+.top-nav {
+    background-color: var(--white);
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.nav-group {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: color 0.2s;
+    position: relative;
+}
+
+.nav-link:hover {
+    color: var(--primary-blue);
+}
+
+.nav-link.active {
+    color: var(--primary-blue);
+}
+
+.nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--primary-blue);
+    border-radius: 2px;
+}
+
+.btn-logout {
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.btn-logout:hover {
+    background-color: #fee2e2;
+    color: #ef4444;
+    border-color: #fecaca;
 }
 
 /* 2. Layout Container */
@@ -38,13 +98,29 @@ body {
     width: 100%;
     max-width: 1000px;
     margin: 0 auto;
-    flex: 1; 
-    /* No extra padding here, let body handle edges */
+    flex: 1;
+    padding: 1rem;
 }
 
-.page-header { margin-bottom: 1rem; text-align: center; }
-.page-header h1 { font-size: 1.5rem; font-weight: 800; color: var(--primary-blue); margin-bottom: 0.25rem; }
-.page-header .date { font-size: 0.8rem; color: var(--text-muted); }
+/* DESKTOP UPDATE: Restore comfortable padding on larger screens */
+@media (min-width: 768px) {
+    .dashboard-container { padding: 1.5rem; }
+}
+
+.page-header { 
+    margin-bottom: 1rem; 
+    text-align: center; 
+}
+.page-header h1 { 
+    font-size: 1.75rem; 
+    font-weight: 800; 
+    color: var(--primary-blue); 
+    margin-bottom: 0.25rem; 
+}
+.page-header p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
 
 /* 3. Stats Grid */
 .stats-grid {
@@ -98,7 +174,6 @@ body {
 /* 5. Chart Section */
 .chart-section {
     width: 100%;
-    /* Let the .card padding define the edge, but keep it slim */
 }
 
 .chart-header {
@@ -123,13 +198,15 @@ body {
     width: 100%;
 }
 
-.nav-group {
+/* SCOPED UPDATE: Specific style for chart nav to avoid breaking main nav */
+.chart-header .nav-group {
     align-items: center;
     justify-content: space-between; 
     background: #f8fafc;
     padding: 0.25rem;
     border-radius: 8px;
     gap: 0.5rem;
+    display: flex;
 }
 
 @media (min-width: 480px) {
@@ -184,7 +261,7 @@ body {
 .chart-container {
     position: relative;
     width: 100%;
-    height: 280px; /* Slightly shorter on mobile to fit screen better */
+    height: 280px; 
 }
 
 @media (min-width: 600px) {
@@ -251,14 +328,6 @@ body {
 }
 
 /* Authentication Buttons */
-.page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 1rem;
-}
-
 .auth-buttons {
     display: flex;
     gap: 0.5rem;
@@ -306,11 +375,6 @@ body {
 
 /* Mobile responsiveness for auth buttons */
 @media (max-width: 480px) {
-    .page-header {
-        flex-direction: column;
-        text-align: center;
-    }
-    
     .auth-buttons {
         width: 100%;
         justify-content: center;
