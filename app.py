@@ -231,6 +231,62 @@ def poop():
             
     return render_template('poop.html')
 
+@app.route('/api/poop', methods=['POST'])
+def api_poop():
+    """API endpoint to create a poop entry with credentials in JSON data"""
+    try:
+        data = request.get_json()
+        
+        # Validate required fields
+        if not data or 'email' not in data or 'password' not in data or 'user_time' not in data:
+            return {'error': 'email, password, and user_time are required'}, 400
+        
+        email = data['email']
+        password = data['password']
+        user_date = data['user_time']
+        
+        # Validate date format
+        try:
+            datetime.strptime(user_date, '%Y-%m-%dT%H:%M')
+        except ValueError:
+            return {'error': 'Invalid date format. Use YYYY-MM-DDTHH:MM'}, 400
+        
+        # Authenticate user
+        try:
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor()
+            cursor.execute("SELECT id, username, email, password_hash FROM users WHERE email = %s", (email,))
+            user_data = cursor.fetchone()
+            
+            if not user_data or not check_password_hash(user_data[3], password):
+                conn.close()
+                return {'error': 'Invalid email or password'}, 401
+            
+            user_id = user_data[0]
+            
+            # Insert poop entry
+            sql = "INSERT INTO poop (user_id, log_time) VALUES (%s, %s)"
+            cursor.execute(sql, (user_id, user_date))
+            conn.commit()
+            conn.close()
+            
+            formatted_date = datetime.strptime(user_date, '%Y-%m-%dT%H:%M').strftime('%d/%m/%Y %H:%M')
+            
+            return {
+                'status': 'success',
+                'message': f'Registre afegit correctament: {formatted_date}',
+                'timestamp': formatted_date,
+                'user_id': user_id
+            }, 201
+            
+        except Exception as e:
+            app.logger.error(f"API poop authentication error: {e}")
+            return {'error': 'Authentication failed'}, 401
+        
+    except Exception as e:
+        app.logger.error(f"API poop error: {e}")
+        return {'error': str(e)}, 500
+
 @app.route('/logout')
 @login_required
 def logout():
