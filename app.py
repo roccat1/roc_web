@@ -96,6 +96,7 @@ def home():
         cursor.execute(sql, (selected_user_id,))
         raw_logs = cursor.fetchall()
 
+        last_entry_date = None
         for row in raw_logs:
             log_id = row[0]
             u_id = row[1]
@@ -106,6 +107,21 @@ def home():
                 clean_date = dt_obj.strftime('%Y-%m-%dT%H:%M:%S')
 
             formatted_logs.append([log_id, u_id, clean_date])
+            
+            # Set last_entry_date on first iteration (most recent)
+            if last_entry_date is None and dt_obj:
+                # Format date in a visual way (Today, Yesterday, etc.)
+                today = datetime.now().date()
+                entry_date = dt_obj.date()
+                time_str = dt_obj.strftime('%H:%M')
+                
+                if entry_date == today:
+                    last_entry_date = f"Avui: {time_str}"
+                elif entry_date == today - __import__('datetime').timedelta(days=1):
+                    last_entry_date = f"Ahir: {time_str}"
+                else:
+                    days_ago = (today - entry_date).days
+                    last_entry_date = f"Fa {days_ago} dies a les {time_str}"
 
         conn.close()
 
@@ -115,7 +131,7 @@ def home():
 
     user_is_logged_in = current_user.is_authenticated
 
-    return render_template('home.html', logs=formatted_logs, users=users, selected_user_id=selected_user_id, user_is_logged_in=user_is_logged_in)
+    return render_template('home.html', logs=formatted_logs, users=users, selected_user_id=selected_user_id, user_is_logged_in=user_is_logged_in, last_entry_date=last_entry_date)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
