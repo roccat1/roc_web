@@ -249,3 +249,75 @@ body {
     background-color: var(--white);
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
+
+/* Authentication Buttons */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.auth-buttons {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.auth-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+    display: inline-block;
+}
+
+.login-btn {
+    background-color: var(--white);
+    color: var(--primary-blue);
+    border-color: var(--primary-blue);
+}
+
+.login-btn:hover {
+    background-color: var(--primary-blue);
+    color: var(--white);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.register-btn {
+    background-color: var(--primary-blue);
+    color: var(--white);
+}
+
+.register-btn:hover {
+    background-color: var(--dark-blue);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.auth-btn:active {
+    transform: translateY(0);
+}
+
+/* Mobile responsiveness for auth buttons */
+@media (max-width: 480px) {
+    .page-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .auth-buttons {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .auth-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+    }
+}
