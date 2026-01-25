@@ -303,6 +303,65 @@ def api_poop():
         app.logger.error(f"API poop error: {e}")
         return {'error': str(e)}, 500
 
+@app.route('/api/poop/metrics', methods=['GET'])
+def api_poop_metrics():
+    """API endpoint to get poop metrics for the last 7 days with credentials in JSON data"""
+    try:
+        data = request.get_json()
+        
+        # Validate required fields
+        if not data or 'email' not in data or 'password' not in data:
+            return {'error': 'email and password are required'}, 400
+        
+        email = data['email']
+        password = data['password']
+        
+        # Authenticate user
+        try:
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor()
+            cursor.execute("SELECT id, username, email, password_hash FROM users WHERE email = %s", (email,))
+            user_data = cursor.fetchone()
+            
+            if not user_data or not check_password_hash(user_data[3], password):
+                conn.close()
+                return {'error': 'Invalid email or password'}, 401
+            
+            user_id = user_data[0]
+            
+            # Fetch poop entries for the last 7 days
+            sql = """
+                SELECT DATE(log_time) as date, COUNT(*) as count
+                FROM poop
+                WHERE user_id = %s AND log_time >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+                GROUP BY DATE(log_time)
+                ORDER BY date DESC
+            """
+            cursor.execute(sql, (user_id,))
+            metrics_data = cursor.fetchall()
+            conn.close()
+            
+            # Calculate total and format response
+            total_entries = sum(row[1] for row in metrics_data)
+            daily_metrics = [{'date': str(row[0]), 'count': row[1]} for row in metrics_data]
+            
+            return {
+                'status': 'success',
+                'user_id': user_id,
+                'username': user_data[1],
+                'total_last_7_days': total_entries,
+                'average_per_day': round(total_entries / 7, 2),
+                'daily_breakdown': daily_metrics
+            }, 200
+            
+        except Exception as e:
+            app.logger.error(f"API metrics authentication error: {e}")
+            return {'error': 'Authentication failed'}, 401
+        
+    except Exception as e:
+        app.logger.error(f"API metrics error: {e}")
+        return {'error': str(e)}, 500
+
 @app.route('/logout')
 @login_required
 def logout():
