@@ -33,7 +33,7 @@ def poop():
             flash(f"<strong>Error!</strong> Hi ha hagut un problema amb la base de dades: <em>{e}</em>", 'error')
             return str(e), 500
 
-    return render_template('poop.html')
+    return render_template('poop.html', user=current_user)
 
 
 @poop_bp.route('/api/poop', methods=['POST'])
