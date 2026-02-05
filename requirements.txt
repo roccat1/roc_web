@@ -1,5 +1,6 @@
 Flask
 Flask-Login
+gunicorn
 psycopg2-binary
 python-dotenv
 werkzeug
