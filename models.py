@@ -1,6 +1,17 @@
 from flask_login import UserMixin
-import mysql.connector
+import psycopg2
 from config import db_config
+
+
+def get_db_connection():
+    """Create a database connection."""
+    return psycopg2.connect(
+        host=db_config['host'],
+        user=db_config['user'],
+        password=db_config['password'],
+        dbname=db_config['database'],
+        sslmode=db_config['sslmode']
+    )
 
 
 class User(UserMixin):
@@ -14,7 +25,7 @@ class User(UserMixin):
 def load_user_by_id(user_id):
     """Load a user from the database by ID."""
     try:
-        conn = mysql.connector.connect(**db_config)
+        conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute(
             "SELECT id, username, email, password_hash, config, created_at FROM users WHERE id = %s",
@@ -34,7 +45,7 @@ def load_user_by_id(user_id):
 def get_user_by_email(email):
     """Load a user from the database by email."""
     try:
-        conn = mysql.connector.connect(**db_config)
+        conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute(
             "SELECT id, username, email, password_hash, config, created_at FROM users WHERE email = %s",

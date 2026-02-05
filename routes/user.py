@@ -1,8 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from flask_login import login_required, current_user
-import mysql.connector
 
-from config import db_config
+from models import get_db_connection
 
 user_bp = Blueprint('user', __name__)
 
@@ -18,12 +17,12 @@ def user():
             return redirect(url_for('user.user'))
 
         try:
-            conn = mysql.connector.connect(**db_config)
+            conn = get_db_connection()
             cursor = conn.cursor()
 
             # Update the user's privacy setting
-            sql = "UPDATE users SET config = JSON_SET(config, '$.public', %s) WHERE id = %s"
-            cursor.execute(sql, (new_privacy == 'public', current_user.id))
+            sql = "UPDATE users SET config = jsonb_set(config::jsonb, '{public}', %s::jsonb) WHERE id = %s"
+            cursor.execute(sql, ('true' if new_privacy == 'public' else 'false', current_user.id))
             conn.commit()
             conn.close()
 
@@ -37,9 +36,9 @@ def user():
     # Fetch the current privacy setting
     user_privacy = 'private'
     try:
-        conn = mysql.connector.connect(**db_config)
+        conn = get_db_connection()
         cursor = conn.cursor()
-        sql = "SELECT JSON_EXTRACT(config, '$.public') FROM users WHERE id = %s"
+        sql = "SELECT config->>'public' FROM users WHERE id = %s"
         cursor.execute(sql, (current_user.id,))
         result = cursor.fetchone()
         conn.close()

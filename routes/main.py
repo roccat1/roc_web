@@ -1,9 +1,8 @@
 from flask import Blueprint, render_template, request, flash, current_app
 from flask_login import current_user
 from datetime import datetime, timedelta
-import mysql.connector
 
-from config import db_config
+from models import get_db_connection
 
 main_bp = Blueprint('main', __name__)
 
@@ -26,19 +25,19 @@ def home():
     last_entry_date = None
 
     try:
-        conn = mysql.connector.connect(**db_config)
+        conn = get_db_connection()
         cursor = conn.cursor()
 
         # Fetch all public accounts
         cursor.execute(
-            "SELECT id, username, email FROM users WHERE JSON_EXTRACT(config, '$.public') = true ORDER BY id ASC"
+            "SELECT id, username, email FROM users WHERE (config->>'public')::boolean = true ORDER BY id ASC"
         )
         users = cursor.fetchall()
 
         # If user is logged in and their account is private, add their own account to the list
         if current_user.is_authenticated:
             cursor.execute(
-                "SELECT JSON_EXTRACT(config, '$.public') FROM users WHERE id = %s",
+                "SELECT config->>'public' FROM users WHERE id = %s",
                 (current_user.id,)
             )
             privacy_result = cursor.fetchone()

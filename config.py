@@ -5,11 +5,11 @@ load_dotenv()
 
 # Database configuration
 db_config = {
-    'user': os.environ['MYSQL_ADDON_USER'],
-    'password': os.environ['MYSQL_ADDON_PASSWORD'],
-    'host': os.environ['MYSQL_ADDON_HOST'],
-    'database': os.environ['MYSQL_ADDON_DATABASE'],
-    'port': os.environ['MYSQL_ADDON_PORT']
+    'host': os.environ['DATABASE_HOST'],
+    'user': os.environ['DATABASE_USER'],
+    'password': os.environ['DATABASE_PASSWORD'],
+    'database': os.environ['DATABASE_NAME'],
+    'sslmode': 'require'
 }
 
 # Flask configuration

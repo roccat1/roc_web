@@ -3,10 +3,8 @@ from flask_login import login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 import json
-import mysql.connector
 
-from config import db_config
-from models import User, get_user_by_email
+from models import User, get_user_by_email, get_db_connection
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -59,7 +57,7 @@ def register():
             return render_template('register.html')
 
         try:
-            conn = mysql.connector.connect(**db_config)
+            conn = get_db_connection()
             cursor = conn.cursor()
 
             # Check if user already exists

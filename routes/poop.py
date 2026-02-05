@@ -2,9 +2,8 @@ from flask import Blueprint, render_template, request, flash, current_app
 from flask_login import login_required, current_user
 from werkzeug.security import check_password_hash
 from datetime import datetime
-import mysql.connector
 
-from config import db_config
+from models import get_db_connection
 
 poop_bp = Blueprint('poop', __name__)
 
@@ -16,7 +15,7 @@ def poop():
         user_date = request.form['user_time']
 
         try:
-            conn = mysql.connector.connect(**db_config)
+            conn = get_db_connection()
             cursor = conn.cursor()
 
             sql = "INSERT INTO poop (user_id, log_time) VALUES (%s, %s)"
@@ -58,7 +57,7 @@ def api_poop():
 
         # Authenticate user
         try:
-            conn = mysql.connector.connect(**db_config)
+            conn = get_db_connection()
             cursor = conn.cursor()
             cursor.execute(
                 "SELECT id, username, email, password_hash FROM users WHERE email = %s",
@@ -109,7 +108,7 @@ def api_poop_metrics():
         password = data['password']
 
         try:
-            conn = mysql.connector.connect(**db_config)
+            conn = get_db_connection()
             cursor = conn.cursor()
 
             # 1. Login
@@ -129,7 +128,7 @@ def api_poop_metrics():
             sql_metrics = """
                 SELECT DATE(log_time) as date, COUNT(*) as count
                 FROM poop
-                WHERE user_id = %s AND log_time >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+                WHERE user_id = %s AND log_time >= NOW() - INTERVAL '7 days'
                 GROUP BY DATE(log_time)
                 ORDER BY date DESC
             """

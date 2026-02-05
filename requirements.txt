@@ -1,5 +1,5 @@
 Flask
 Flask-Login
-mysql-connector-python
-dotenv
+psycopg2-binary
+python-dotenv
 werkzeug
