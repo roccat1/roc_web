@@ -9,6 +9,7 @@ from routes.auth import auth_bp
 from routes.main import main_bp
 from routes.poop import poop_bp
 from routes.user import user_bp
+from routes.api import api_bp
 
 # Create Flask app
 app = Flask(__name__, static_folder='static', static_url_path='/static')
@@ -33,6 +34,7 @@ app.register_blueprint(auth_bp)
 app.register_blueprint(main_bp)
 app.register_blueprint(poop_bp)
 app.register_blueprint(user_bp)
+app.register_blueprint(api_bp)
 
 
 if __name__ == '__main__':
